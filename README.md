@@ -6,6 +6,7 @@ A comprehensive Flask-based web application for tracking employee work hours, br
 
 ### Employee Features
 - **⏰ Time Tracking**
+
   - Clock In/Out functionality
   - Lunch break tracking (Start/End)
   - Dinner break tracking (Start/End)
