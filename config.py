@@ -3,7 +3,7 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY") or "dev-secret"
+    SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(BASE_DIR, "timetracker.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
@@ -19,4 +19,4 @@ class Config:
     INIT_TOKEN = os.getenv("INIT_TOKEN")
     AUTO_SEED_ON_EMPTY = os.getenv("AUTO_SEED_ON_EMPTY", "true").lower() == "true"
     SHOW_RESET_LINK = os.getenv("SHOW_RESET_LINK", "false").lower() == "true"
-    
+
