@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div class="row align-items-center">
+      <div class="col">
+        <h3 class="mb-0"><i class="fas fa-calendar"></i> Monthly Calendar</h3>
+      </div>
+      <div class="col text-end">
+        <a href="/calendar?month={% if month == 1 %}12{% else %}{{ month - 1 }}{% endif %}&year={% if month == 1 %}{{ year - 1 }}{% else %}{{ year }}{% endif %}" class="btn btn-sm btn-outline-primary">
+          <i class="fas fa-chevron-left"></i> Prev
+        </a>
+        <span class="badge bg-info ms-2 me-2">{{ ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month-1] }} {{ year }}</span>
+        <a href="/calendar?month={% if month == 12 %}1{% else %}{{ month + 1 }}{% endif %}&year={% if month == 12 %}{{ year + 1 }}{% else %}{{ year }}{% endif %}" class="btn btn-sm btn-outline-primary">
+          Next <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="table-light">
+          <tr>
+            <th class="text-center">Mon</th>
+            <th class="text-center">Tue</th>
+            <th class="text-center">Wed</th>
+            <th class="text-center">Thu</th>
+            <th class="text-center">Fri</th>
+            <th class="text-center">Sat</th>
+            <th class="text-center">Sun</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set first_day_of_month = (1 | string).zfill(4) + '-' + (month | string).zfill(2) + '-01' %}
+          {% set first_weekday = namespace(value=0) %}
+          {% for day in range(1, 32) %}
+            {% if day == 1 %}
+              {% set date_obj = (year | string) + '-' + (month | string).zfill(2) + '-01' %}
+            {% endif %}
+            
+            {% if day == 1 %}<tr>{% endif %}
+            
+            {% if day == 1 %}
+              {% for empty in range(0, first_weekday.value) %}
+                <td class="bg-light"></td>
+              {% endfor %}
+            {% endif %}
+            
+            {% set iso_date = (year | string) + '-' + (month | string).zfill(2) + '-' + (day | string).zfill(2) %}
+            <td class="{% if iso_date == today | string %}border-2 border-primary{% endif %}">
+              <div class="d-flex justify-content-between align-items-start">
+                <strong>{{ day }}</strong>
+                {% if iso_date in calendar_data %}
+                  <span class="badge bg-success">{{ (calendar_data[iso_date].work_minutes / 60) | round(1) }}h</span>
+                {% endif %}
+              </div>
+              {% if iso_date in calendar_data %}
+                <small class="text-muted">
+                  <i class="fas fa-coffee"></i> {{ (calendar_data[iso_date].break_minutes) }}m
+                </small>
+              {% endif %}
+            </td>
+            
+            {% if (loop.index + first_weekday.value) % 7 == 0 %}</tr><tr>{% endif %}
+          {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-3">
+  <div class="col-md-6">
+    <a href="/dashboard" class="btn btn-secondary w-100">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+  </div>
+  <div class="col-md-6">
+    <a href="/week" class="btn btn-primary w-100">
+      <i class="fas fa-calendar-week"></i> Weekly View
+    </a>
+  </div>
+</div>
+{% endblock %}

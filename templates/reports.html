@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="mb-0"><i class="fas fa-chart-bar"></i> Reports</h3>
+  </div>
+  <div class="card-body">
+    <form method="get" class="mb-4">
+      <div class="row">
+        <div class="col-md-4">
+          <label class="form-label">Report Type</label>
+          <select name="type" class="form-select">
+            <option value="daily" {% if report_type == 'daily' %}selected{% endif %}>Daily Report</option>
+            <option value="weekly" {% if report_type == 'weekly' %}selected{% endif %}>Weekly Report</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">
+            {% if report_type == 'daily' %}Date{% else %}Week Starting{% endif %}
+          </label>
+          <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">&nbsp;</label>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-search"></i> Generate Report
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead class="table-light">
+          <tr>
+            <th><i class="fas fa-user"></i> Employee</th>
+            <th><i class="fas fa-id-card"></i> Emp ID</th>
+            <th><i class="fas fa-building"></i> Department</th>
+            <th><i class="fas fa-briefcase"></i> Worked</th>
+            <th><i class="fas fa-coffee"></i> Breaks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in report_data %}
+            <tr>
+              <td><strong>{{ row.name }}</strong></td>
+              <td>{{ row.emp_id }}</td>
+              <td>{{ row.dept }}</td>
+              <td><span class="badge bg-success">{{ row.work_hours }}h</span></td>
+              <td><span class="badge bg-warning">{{ row.break_hours }}h</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-4">
+        <button class="btn btn-info w-100" onclick="window.print()">
+          <i class="fas fa-print"></i> Print Report
+        </button>
+      </div>
+      <div class="col-md-4">
+        <a href="/export-csv?type=timesheets&date={{ selected_date }}" class="btn btn-success w-100">
+          <i class="fas fa-download"></i> Export Timesheets
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="/export-csv?type=employees" class="btn btn-warning w-100">
+          <i class="fas fa-download"></i> Export Employees
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="/admin" class="btn btn-secondary w-100 mt-3">
+  <i class="fas fa-arrow-left"></i> Back to Admin
+</a>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-header"><i class="fas fa-plane-departure"></i> Leave Request</div>
+  <div class="card-body">
+    <form method="post" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Type</label>
+        <select name="leave_type" class="form-select" required>
+          <option value="holiday">Holiday</option>
+          <option value="sick">Sick</option>
+          <option value="unpaid">Unpaid</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Start</label>
+        <input type="date" name="start_date" class="form-control" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">End</label>
+        <input type="date" name="end_date" class="form-control" required>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Reason</label>
+        <textarea name="reason" class="form-control" rows="3"></textarea>
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary w-100" type="submit"><i class="fas fa-paper-plane"></i> Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-list"></i> My Requests</div>
+  <div class="card-body">
+    {% if requests %}
+      <ul class="list-group">
+        {% for r in requests %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ r.leave_type|title }} • {{ r.start_date }} → {{ r.end_date }}</span>
+            <span class="badge bg-info">{{ r.status }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="text-muted">No leave requests.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

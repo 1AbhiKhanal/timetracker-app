@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <div class="h4 mb-1">Admin</div>
+      <div class="text-muted small">{{ w_start.strftime("%d %b") }} - {{ w_end.strftime("%d %b %Y") }}</div>
+    </div>
+    <div class="text-muted small">Active employees: {{ summaries|length }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Quick Links</div>
+  <div class="card-body">
+    <div class="row g-2">
+      <div class="col-md-4">
+        <a href="/approve-timesheet" class="btn btn-outline-primary w-100">Approvals</a>
+      </div>
+      <div class="col-md-4">
+        <a href="/roster-admin" class="btn btn-outline-primary w-100">Roster</a>
+      </div>
+      <div class="col-md-4">
+        <a href="/approve-corrections" class="btn btn-outline-primary w-100">Corrections</a>
+      </div>
+      <div class="col-md-4">
+        <a href="/approve-leave" class="btn btn-outline-primary w-100">Leave</a>
+      </div>
+      <div class="col-md-4">
+        <a href="/employee-management" class="btn btn-outline-primary w-100">Employees</a>
+      </div>
+      <div class="col-md-4">
+        <a href="/reports" class="btn btn-outline-primary w-100">Reports</a>
+      </div>
+      <div class="col-md-4">
+        <a href="/audit-log" class="btn btn-outline-secondary w-100">Audit Log</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Team Weekly Summary</div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Worked</th>
+            <th>Breaks</th>
+            <th>Status</th>
+            <th>Week</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in summaries %}
+            <tr>
+              <td><strong>{{ s.name }}</strong></td>
+              <td>{{ s.work }}</td>
+              <td>{{ s.breaks }}</td>
+              <td>
+                {% if '✓' in s.flag %}
+                  <span class="badge bg-success">On target</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Behind</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if s.locked %}
+                  <span class="badge bg-secondary">Locked</span>
+                {% else %}
+                  <span class="badge bg-light text-dark">Open</span>
+                {% endif %}
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">Actions</button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <form method="post" style="display:contents;">
+                      <input type="hidden" name="action" value="reset_week">
+                      <input type="hidden" name="user_id" value="{{ s.id }}">
+                      <button type="submit" class="dropdown-item" onclick="return confirm('Reset week for {{ s.name }}?')">Reset Week</button>
+                    </form>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <form method="post" style="display:contents;">
+                      <input type="hidden" name="action" value="delete_user">
+                      <input type="hidden" name="user_id" value="{{ s.id }}">
+                      <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Delete {{ s.name }}?')">Delete</button>
+                    </form>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Manual Time Entry</div>
+  <div class="card-body">
+    <form method="post">
+      <input type="hidden" name="action" value="edit_entry">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Employee</label>
+          <select name="user_name" class="form-select" required>
+            <option value="">Select employee...</option>
+            {% for user in users %}
+              <option value="{{ user.name }}">{{ user.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Date</label>
+          <input type="date" name="entry_date" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Clock In</label>
+          <input type="time" name="clock_in" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Clock Out</label>
+          <input type="time" name="clock_out" class="form-control">
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Lunch Start</label>
+          <input type="time" name="lunch_start" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Lunch End</label>
+          <input type="time" name="lunch_end" class="form-control">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Update Entry</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Roster Tools</div>
+  <div class="card-body">
+    <details class="mb-3">
+      <summary class="fw-semibold">Set Roster (Single Employee)</summary>
+      <form method="post" class="mt-3">
+        <input type="hidden" name="action" value="set_roster">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Employee</label>
+            <select name="user_id" class="form-select" required>
+              <option value="">Select employee...</option>
+              {% for user in users %}
+                <option value="{{ user.id }}">{{ user.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Day of Week</label>
+            <select name="day_of_week" class="form-select" required>
+              <option value="">Select day...</option>
+              {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                <option value="{{ day }}">{{ day }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Start Time</label>
+            <input type="time" name="start_time" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">End Time</label>
+            <input type="time" name="end_time" class="form-control" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Set Shift</button>
+      </form>
+    </details>
+
+    <details class="mb-3">
+      <summary class="fw-semibold">Set Roster (All Employees)</summary>
+      <form method="post" class="mt-3">
+        <input type="hidden" name="action" value="set_roster_all">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Day of Week</label>
+            <select name="day_of_week" class="form-select" required>
+              <option value="">Select day...</option>
+              {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                <option value="{{ day }}">{{ day }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Start Time</label>
+            <input type="time" name="start_time" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">End Time</label>
+            <input type="time" name="end_time" class="form-control" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Apply To All Employees</button>
+      </form>
+    </details>
+
+    <details>
+      <summary class="fw-semibold">Current Roster</summary>
+      <div class="mt-3">
+        {% if roster_entries %}
+          <div class="table-responsive">
+            <table class="table table-sm table-hover">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Day</th>
+                  <th>Start</th>
+                  <th>End</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in roster_entries %}
+                  <tr>
+                    <td>{{ user_map.get(r.user_id).name if user_map.get(r.user_id) else r.user_id }}</td>
+                    <td>{{ r.day_of_week }}</td>
+                    <td>{{ r.start_time }}</td>
+                    <td>{{ r.end_time }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted">No roster entries yet.</div>
+        {% endif %}
+      </div>
+    </details>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Overtime Rules</div>
+  <div class="card-body">
+    <form method="post">
+      <input type="hidden" name="action" value="update_overtime">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Weekly Threshold (hours)</label>
+          <input type="number" step="0.1" name="overtime_threshold" class="form-control" value="{{ settings.overtime_threshold_hours }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Overtime Multiplier</label>
+          <input type="number" step="0.1" name="overtime_multiplier" class="form-control" value="{{ settings.overtime_multiplier }}" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mt-3">Save Rules</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">System Tools</div>
+  <div class="card-body">
+    <form method="post" onsubmit="return confirm('Rebuild database? This clears all data.');">
+      <input type="hidden" name="action" value="rebuild_db">
+      <button type="submit" class="btn btn-danger w-100">Rebuild Database</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

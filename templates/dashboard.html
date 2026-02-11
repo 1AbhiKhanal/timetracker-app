@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">Today</div>
+  <div class="card-body">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <div class="text-muted small">{{ entry.day.strftime('%A, %d %B %Y') }}</div>
+        <div class="h5 mb-1">{{ current_user.name }}</div>
+        <div class="small text-muted">{{ current_user.department or 'N/A' }}</div>
+      </div>
+      <div>
+        {% if entry.clock_in and not entry.clock_out %}
+          <span class="badge bg-success">Active</span>
+        {% elif entry.clock_out %}
+          <span class="badge bg-primary">Done</span>
+        {% else %}
+          <span class="badge bg-secondary">Idle</span>
+        {% endif %}
+      </div>
+      <div class="text-end">
+        <div class="small text-muted">Hours today</div>
+        <div class="time-display">{{ work_minutes // 60 }}h {{ work_minutes % 60 }}m</div>
+        <div class="small text-muted">Breaks {{ break_minutes // 60 }}h {{ break_minutes % 60 }}m</div>
+      </div>
+    </div>
+
+    {% if weekly_limit %}
+      <div class="mt-3">
+        {% if over_limit %}
+          <div class="alert alert-warning mb-0">
+            Weekly limit exceeded: {{ weekly_work_hours | round(1) }}h / {{ weekly_limit }}h
+          </div>
+        {% else %}
+          <div class="alert alert-info mb-0">
+            Weekly limit: {{ weekly_work_hours | round(1) }}h / {{ weekly_limit }}h
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Actions</div>
+  <div class="card-body">
+    <div class="row g-2">
+      <div class="col-6 col-md-3">
+        <form method="post" action="/action/clock_in">
+          <button type="submit" class="btn btn-primary w-100">Clock In</button>
+        </form>
+      </div>
+      <div class="col-6 col-md-3">
+        <form method="post" action="/action/lunch_start">
+          <button type="submit" class="btn btn-outline-primary w-100">Lunch Start</button>
+        </form>
+      </div>
+      <div class="col-6 col-md-3">
+        <form method="post" action="/action/lunch_end">
+          <button type="submit" class="btn btn-outline-primary w-100">Lunch End</button>
+        </form>
+      </div>
+      {% if settings and settings.dinner_break_duration and settings.dinner_break_duration > 0 %}
+        <div class="col-6 col-md-3">
+          <form method="post" action="/action/dinner_start">
+            <button type="submit" class="btn btn-outline-primary w-100">Dinner Start</button>
+          </form>
+        </div>
+        <div class="col-6 col-md-3">
+          <form method="post" action="/action/dinner_end">
+            <button type="submit" class="btn btn-outline-primary w-100">Dinner End</button>
+          </form>
+        </div>
+      {% endif %}
+      <div class="col-6 col-md-3">
+        <form method="post" action="/action/clock_out">
+          <button type="submit" class="btn btn-danger w-100">Clock Out</button>
+        </form>
+      </div>
+    </div>
+
+    {% if entry.clock_in and entry.clock_out %}
+      <div class="alert alert-success mt-3 mb-0">
+        Work completed. Total: {{ work_minutes // 60 }}h {{ work_minutes % 60 }}m
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Time Details</div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <tbody>
+          <tr>
+            <td>Clock In</td>
+            <td>{{ format_time(entry.clock_in) }}</td>
+            <td>Clock Out</td>
+            <td>{{ format_time(entry.clock_out) }}</td>
+          </tr>
+          <tr>
+            <td>Lunch Start</td>
+            <td>{{ format_time(entry.lunch_start) }}</td>
+            <td>Lunch End</td>
+            <td>{{ format_time(entry.lunch_end) }}</td>
+          </tr>
+          <tr>
+            <td>Dinner Start</td>
+            <td>{{ format_time(entry.dinner_start) }}</td>
+            <td>Dinner End</td>
+            <td>{{ format_time(entry.dinner_end) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Shift Notes</div>
+  <div class="card-body">
+    <form method="post" action="/save-notes">
+      <textarea name="shift_notes" class="form-control" rows="3" placeholder="Add context for today...">{{ entry.shift_notes or '' }}</textarea>
+      <button class="btn btn-primary w-100 mt-3" type="submit">Save Notes</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">My Roster</div>
+  <div class="card-body">
+    {% if roster %}
+      <div class="table-responsive">
+        <table class="table table-sm table-hover">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Shift</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in roster %}
+              <tr>
+                <td>{{ r.day_of_week }}</td>
+                <td>
+                  {% if r.is_off %}
+                    Off
+                  {% else %}
+                    {{ r.start_time or '-' }} – {{ r.end_time or '-' }}
+                  {% endif %}
+                </td>
+                <td>{{ r.notes or '-' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">No roster assigned yet.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Requests</div>
+  <div class="card-body">
+    <div class="row g-2">
+      <div class="col-md-6">
+        <a class="btn btn-outline-primary w-100" href="/request-correction">Request Correction</a>
+      </div>
+      <div class="col-md-6">
+        <a class="btn btn-outline-secondary w-100" href="/leave-request">Request Leave</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

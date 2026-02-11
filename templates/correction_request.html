@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-header"><i class="fas fa-user-clock"></i> Correction Request</div>
+  <div class="card-body">
+    <form method="post" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Date</label>
+        <input type="date" name="entry_date" class="form-control" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Clock In</label>
+        <input type="time" name="clock_in" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Clock Out</label>
+        <input type="time" name="clock_out" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Lunch Start</label>
+        <input type="time" name="lunch_start" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Lunch End</label>
+        <input type="time" name="lunch_end" class="form-control">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Reason</label>
+        <textarea name="reason" class="form-control" rows="3"></textarea>
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary w-100" type="submit"><i class="fas fa-paper-plane"></i> Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-list"></i> My Requests</div>
+  <div class="card-body">
+    {% if requests %}
+      <ul class="list-group">
+        {% for r in requests %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ r.entry_date }} • {{ r.reason or '-' }}</span>
+            <span class="badge bg-info">{{ r.status }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="text-muted">No correction requests.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="mb-0"><i class="fas fa-users"></i> Employee Management</h3>
+  </div>
+  <div class="card-body">
+    <ul class="nav nav-tabs mb-3" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="list-tab" data-bs-toggle="tab" data-bs-target="#list" type="button" role="tab">
+          <i class="fas fa-list"></i> All Employees
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="add-tab" data-bs-toggle="tab" data-bs-target="#add" type="button" role="tab">
+          <i class="fas fa-plus"></i> Add Employee
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- List Employees Tab -->
+      <div class="tab-pane fade show active" id="list" role="tabpanel">
+        <div class="mb-3 d-flex gap-2">
+          <a href="/export-csv?type=employees" class="btn btn-success">
+            <i class="fas fa-download"></i> Export to CSV
+          </a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th><i class="fas fa-user"></i> Name</th>
+                <th><i class="fas fa-id-card"></i> Emp ID</th>
+                <th><i class="fas fa-user-tag"></i> Role</th>
+                <th><i class="fas fa-briefcase"></i> Position</th>
+                <th><i class="fas fa-envelope"></i> Email</th>
+                <th><i class="fas fa-phone"></i> Phone</th>
+                <th><i class="fas fa-building"></i> Department</th>
+                <th><i class="fas fa-passport"></i> Visa</th>
+                <th><i class="fas fa-clock"></i> Weekly Limit</th>
+                <th><i class="fas fa-toggle-on"></i> Status</th>
+                <th><i class="fas fa-cog"></i> Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for emp in employees %}
+                <tr>
+                  <td><strong>{{ emp.name }}</strong></td>
+                  <td>{{ emp.employee_id or '-' }}</td>
+                  <td>{{ emp.role }}</td>
+                  <td>{{ emp.position or '-' }}</td>
+                  <td>{{ emp.email or '-' }}</td>
+                  <td>{{ emp.phone or '-' }}</td>
+                  <td>{{ emp.department or '-' }}</td>
+                  <td>{{ emp.visa_type or '-' }}</td>
+                  <td>{{ emp.weekly_hour_limit or '-' }}</td>
+                  <td>
+                    {% if emp.is_active %}
+                      <span class="badge bg-success">Active</span>
+                    {% else %}
+                      <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ emp.id }}">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <form method="post" style="display:inline;">
+                      <input type="hidden" name="action" value="toggle_active">
+                      <input type="hidden" name="user_id" value="{{ emp.id }}">
+                      <button type="submit" class="btn btn-sm {% if emp.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                        <i class="fas fa-{% if emp.is_active %}ban{% else %}check{% endif %}"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editModal{{ emp.id }}" tabindex="-1">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Edit {{ emp.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <form method="post">
+                        <div class="modal-body">
+                          <input type="hidden" name="action" value="update_employee">
+                          <input type="hidden" name="user_id" value="{{ emp.id }}">
+                          
+                          <div class="mb-3">
+                            <label class="form-label">Employee ID</label>
+                            <input type="text" name="employee_id" class="form-control" value="{{ emp.employee_id or '' }}">
+                          </div>
+
+                          <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select name="role" class="form-select">
+                              <option value="employee" {% if emp.role == 'employee' %}selected{% endif %}>Employee</option>
+                              <option value="admin" {% if emp.role == 'admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                          </div>
+
+                          <div class="mb-3 form-check">
+                            <input class="form-check-input" type="checkbox" name="is_staff" value="1" id="isStaff{{ emp.id }}" {% if emp.is_staff %}checked{% endif %}>
+                            <label class="form-check-label" for="isStaff{{ emp.id }}">Staff (has shifts)</label>
+                          </div>
+                          
+                          <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ emp.email or '' }}">
+                          </div>
+
+                          <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ emp.phone or '' }}">
+                          </div>
+                          
+                          <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <input type="text" name="department" class="form-control" value="{{ emp.department or '' }}">
+                          </div>
+
+                          <div class="mb-3">
+                            <label class="form-label">Position</label>
+                            <input type="text" name="position" class="form-control" value="{{ emp.position or '' }}">
+                          </div>
+
+                          <div class="mb-3">
+                            <label class="form-label">Visa Type</label>
+                            <input type="text" name="visa_type" class="form-control" value="{{ emp.visa_type or '' }}">
+                          </div>
+
+                          <div class="mb-3">
+                            <label class="form-label">Weekly Hour Limit</label>
+                            <input type="number" step="0.1" name="weekly_hour_limit" class="form-control" value="{{ emp.weekly_hour_limit or '' }}">
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add Employee Tab -->
+      <div class="tab-pane fade" id="add" role="tabpanel">
+        <form method="post">
+          <input type="hidden" name="action" value="add_employee">
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-user"></i> Name</label>
+              <input type="text" name="name" class="form-control" placeholder="Full name" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-id-card"></i> Employee ID</label>
+              <input type="text" name="employee_id" class="form-control" placeholder="EMP001" required>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-user-tag"></i> Role</label>
+              <select name="role" class="form-select">
+                <option value="employee">Employee</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="is_staff" value="1" id="isStaffNew" checked>
+                <label class="form-check-label" for="isStaffNew">Staff (has shifts)</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-envelope"></i> Email</label>
+              <input type="email" name="email" class="form-control" placeholder="email@company.com" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-building"></i> Department</label>
+              <input type="text" name="department" class="form-control" placeholder="e.g., Development" required>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-phone"></i> Phone</label>
+              <input type="text" name="phone" class="form-control" placeholder="+61...">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-briefcase"></i> Position</label>
+              <input type="text" name="position" class="form-control" placeholder="Waiter">
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-passport"></i> Visa Type</label>
+              <input type="text" name="visa_type" class="form-control" placeholder="Student / Work / PR">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-clock"></i> Weekly Hour Limit</label>
+              <input type="number" step="0.1" name="weekly_hour_limit" class="form-control" placeholder="20">
+            </div>
+          </div>
+
+          <div class="alert alert-info mb-3">
+            <i class="fas fa-info-circle"></i> Temporary password will be: <strong>TempPwd@123</strong>
+          </div>
+
+          <button type="submit" class="btn btn-success w-100">
+            <i class="fas fa-plus"></i> Add Employee
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="/admin" class="btn btn-secondary w-100 mt-3">
+  <i class="fas fa-arrow-left"></i> Back to Admin
+</a>
+{% endblock %}

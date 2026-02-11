@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="mb-0">Weekly Staff Roster</h3>
+  </div>
+  <div class="card-body">
+    <form method="get" class="row g-2 mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Week Starting (Monday)</label>
+        <input type="date" name="week_start" class="form-control" value="{{ week_start.isoformat() }}" required>
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-outline-primary w-100">Load Week</button>
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <span class="text-muted small w-100">{{ week_start.strftime('%d/%m/%Y') }} – {{ week_end.strftime('%d/%m/%Y') }}</span>
+      </div>
+    </form>
+
+    <form method="post">
+      <input type="hidden" name="week_start" value="{{ week_start.isoformat() }}">
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Employee</th>
+              <th>Role</th>
+              {% for day in days %}
+                <th class="text-center">{{ day[:3] }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in staff_users %}
+              <tr>
+                <td><strong>{{ user.name }}</strong></td>
+                <td>{{ user.position or '-' }}</td>
+                {% for day in days %}
+                  {% set entry = roster_map.get((user.id, day)) %}
+                  <td style="min-width: 140px;">
+                    <div class="mb-1">
+                      <input type="time" name="start_{{ user.id }}_{{ day }}" class="form-control form-control-sm" value="{{ entry.start_time if entry and entry.start_time else '' }}" {% if entry and entry.is_off %}disabled{% endif %}>
+                    </div>
+                    <div class="mb-1">
+                      <input type="time" name="end_{{ user.id }}_{{ day }}" class="form-control form-control-sm" value="{{ entry.end_time if entry and entry.end_time else '' }}" {% if entry and entry.is_off %}disabled{% endif %}>
+                    </div>
+                    <div class="form-check mb-1">
+                      <input class="form-check-input" type="checkbox" name="off_{{ user.id }}_{{ day }}" value="1" id="off_{{ user.id }}_{{ day }}" {% if entry and entry.is_off %}checked{% endif %}>
+                      <label class="form-check-label" for="off_{{ user.id }}_{{ day }}">Off</label>
+                    </div>
+                    <input type="text" name="notes_{{ user.id }}_{{ day }}" class="form-control form-control-sm" placeholder="Notes" value="{{ entry.notes if entry and entry.notes else '' }}">
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Save Weekly Roster</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

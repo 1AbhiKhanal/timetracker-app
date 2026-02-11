@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workforce Time Clock — SaaS UI Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --slate: #334155;
+      --card: #f8fafc;
+      --border: #e2e8f0;
+      --shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+      --soft: 0 6px 18px rgba(15, 23, 42, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--slate);
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 46px);
+      line-height: 1.1;
+      margin: 10px 0 12px;
+      font-weight: 700;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 18px;
+      max-width: 540px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 140px;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: var(--soft);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .hero-card {
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .device-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .phone {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      box-shadow: var(--soft);
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .phone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+
+    .pill {
+      background: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--slate);
+    }
+
+    .time {
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .primary-cta {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: var(--soft);
+    }
+
+    .secondary-cta {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--slate);
+    }
+
+    .map {
+      border-radius: 14px;
+      background: linear-gradient(135deg, #e2e8f0, #f8fafc);
+      border: 1px solid var(--border);
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--slate);
+      font-weight: 600;
+    }
+
+    .tablet {
+      background: #ffffff;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--soft);
+      padding: 16px;
+      min-height: 420px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-title {
+      font-weight: 700;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+    }
+
+    .admin-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: var(--card);
+    }
+
+    .admin-card h4 {
+      font-size: 12px;
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: var(--slate);
+    }
+
+    .status.ok {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status.warn {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .roster {
+      display: grid;
+      grid-template-columns: 100px repeat(7, 1fr);
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .roster .cell {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px;
+      background: #fff;
+    }
+
+    .roster .role {
+      font-weight: 600;
+      color: var(--slate);
+    }
+
+    .shift {
+      background: #e0f2fe;
+      color: #075985;
+      border-radius: 6px;
+      padding: 4px 6px;
+      margin-top: 4px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .device-grid {
+        grid-template-columns: 1fr;
+      }
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Workforce Time Clock</div>
+        <h1>Clean, trusted time tracking for frontline teams.</h1>
+        <p class="lead">
+          Mobile-first clock‑in, GPS verification, and manager controls for rosters and approvals.
+          Designed for hospitality teams who need speed, clarity, and accountability.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#">Get started</a>
+          <a class="btn btn-secondary" href="#">View demo</a>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="device-grid">
+          <!-- Mobile UI: Employee clock-in -->
+          <div class="phone">
+            <div class="phone-header">
+              <span>Clock</span>
+              <span class="pill">GPS Verified</span>
+            </div>
+            <div>
+              <div class="time">09:42</div>
+              <div class="subtle">Thu, Feb 5 • Downtown Bistro</div>
+            </div>
+            <div class="primary-cta">Clocked In</div>
+            <div class="secondary-cta">Start Break</div>
+            <div class="secondary-cta">Clock Out</div>
+            <div class="map">Map preview • Pin verified</div>
+            <div class="subtle">Clock‑in verified at workplace location</div>
+          </div>
+
+          <!-- Tablet UI: Admin dashboard -->
+          <div class="tablet">
+            <div class="admin-header">
+              <div class="admin-title">Manager Dashboard</div>
+              <span class="pill">Admin only</span>
+            </div>
+            <div class="admin-grid">
+              <div class="admin-card">
+                <h4>Attendance Logs</h4>
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Shift</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Alex P.</td>
+                      <td>08:00–16:00</td>
+                      <td><span class="status ok">On time</span></td>
+                    </tr>
+                    <tr>
+                      <td>Rhea K.</td>
+                      <td>09:00–17:00</td>
+                      <td><span class="status warn">Late</span></td>
+                    </tr>
+                    <tr>
+                      <td>Sam D.</td>
+                      <td>10:00–18:00</td>
+                      <td><span class="status">Pending</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="admin-card">
+                <h4>Approvals & Roles</h4>
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Request</th>
+                      <th>Role</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Break Edit</td>
+                      <td>Server</td>
+                      <td><span class="status ok">Approve</span></td>
+                    </tr>
+                    <tr>
+                      <td>Leave</td>
+                      <td>Host</td>
+                      <td><span class="status">Review</span></td>
+                    </tr>
+                    <tr>
+                      <td>Shift Swap</td>
+                      <td>Chef</td>
+                      <td><span class="status warn">Check</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="admin-card" style="grid-column: 1 / -1;">
+                <h4>Weekly Roster</h4>
+                <div class="roster">
+                  <div class="cell role">Employee</div>
+                  <div class="cell">Mon</div>
+                  <div class="cell">Tue</div>
+                  <div class="cell">Wed</div>
+                  <div class="cell">Thu</div>
+                  <div class="cell">Fri</div>
+                  <div class="cell">Sat</div>
+                  <div class="cell">Sun</div>
+
+                  <div class="cell role">Alex</div>
+                  <div class="cell"><div class="shift">08–16</div></div>
+                  <div class="cell"><div class="shift">08–16</div></div>
+                  <div class="cell"><div class="shift">Off</div></div>
+                  <div class="cell"><div class="shift">10–18</div></div>
+                  <div class="cell"><div class="shift">10–18</div></div>
+                  <div class="cell"><div class="shift">Off</div></div>
+                  <div class="cell"><div class="shift">Off</div></div>
+
+                  <div class="cell role">Rhea</div>
+                  <div class="cell"><div class="shift">09–17</div></div>
+                  <div class="cell"><div class="shift">09–17</div></div>
+                  <div class="cell"><div class="shift">09–17</div></div>
+                  <div class="cell"><div class="shift">Off</div></div>
+                  <div class="cell"><div class="shift">Off</div></div>
+                  <div class="cell"><div class="shift">12–20</div></div>
+                  <div class="cell"><div class="shift">12–20</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      Minimal, workplace‑friendly interface. Employee actions are simplified; manager tools are structured and calm.
+    </div>
+  </div>
+</body>
+</html>

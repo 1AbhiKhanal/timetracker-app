@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="mb-0">Approve Timesheets</h3>
+  </div>
+  <div class="card-body">
+    {% if entries %}
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <a href="/export-payroll?format=csv" class="btn btn-outline-primary btn-sm">Payroll CSV</a>
+        <a href="/export-payroll?format=xlsx" class="btn btn-outline-success btn-sm">Payroll Excel</a>
+        <span class="text-muted small align-self-center">Weekly approvals can be locked after approval.</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Week</th>
+              <th>Date</th>
+              <th>Clock In</th>
+              <th>Clock Out</th>
+              <th>Worked</th>
+              <th>Overtime</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in entries %}
+              <tr>
+                <td><strong>{{ entry.user_name }}</strong></td>
+                <td>
+                  {{ entry.week_start.strftime('%d/%m/%Y') if entry.week_start else '-' }}
+                  –
+                  {{ entry.week_end.strftime('%d/%m/%Y') if entry.week_end else '-' }}
+                </td>
+                <td>{{ entry.date.strftime('%d/%m/%Y') }}</td>
+                <td>{{ entry.clock_in }}</td>
+                <td>{{ entry.clock_out }}</td>
+                <td><span class="badge bg-success">{{ (entry.work_minutes / 60) | round(1) }}h</span></td>
+                <td>
+                  <span class="badge bg-warning text-dark">
+                    {{ ((entry.overtime_minutes or 0) / 60) | round(1) }}h
+                  </span>
+                </td>
+                <td>
+                  {% if entry.is_locked %}
+                    <span class="badge bg-secondary">Locked</span>
+                  {% else %}
+                    <span class="badge bg-info text-dark">Pending</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ entry.id }}" {% if entry.is_locked %}disabled{% endif %}>
+                    Approve
+                  </button>
+                  <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ entry.id }}" {% if entry.is_locked %}disabled{% endif %}>
+                    Reject
+                  </button>
+                  {% if entry.audit_url %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ entry.audit_url }}">
+                      Audit
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% if entry.shift_notes %}
+              <tr class="table-light">
+                <td colspan="9">
+                  {{ entry.shift_notes }}
+                </td>
+              </tr>
+              {% endif %}
+
+              <!-- Approve Modal -->
+              <div class="modal fade" id="approveModal{{ entry.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Approve Timesheet</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post">
+                      <div class="modal-body">
+                        <input type="hidden" name="entry_id" value="{{ entry.id }}">
+                        <input type="hidden" name="action_type" value="approve">
+                        
+                        <p><strong>{{ entry.user_name }}</strong> - {{ entry.date.strftime('%d %B %Y') }}</p>
+                        <p>Worked: <span class="badge bg-success">{{ (entry.work_minutes / 60) | round(1) }}h</span></p>
+                        <p>Overtime: <span class="badge bg-warning text-dark">{{ ((entry.overtime_minutes or 0) / 60) | round(1) }}h</span></p>
+
+                        <div class="form-check mb-3">
+                          <input class="form-check-input" type="checkbox" name="lock_week" id="lockWeek{{ entry.id }}" value="1">
+                          <label class="form-check-label" for="lockWeek{{ entry.id }}">
+                            Lock this week after approval
+                          </label>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <label class="form-label">Notes (optional)</label>
+                          <textarea name="notes" class="form-control" rows="3" placeholder="Add any notes..."></textarea>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Approve</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reject Modal -->
+              <div class="modal fade" id="rejectModal{{ entry.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Reject Timesheet</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post">
+                      <div class="modal-body">
+                        <input type="hidden" name="entry_id" value="{{ entry.id }}">
+                        <input type="hidden" name="action_type" value="reject">
+                        
+                        <p><strong>{{ entry.user_name }}</strong> - {{ entry.date.strftime('%d %B %Y') }}</p>
+                        
+                        <div class="mb-3">
+                          <label class="form-label">Rejection Reason *</label>
+                          <textarea name="notes" class="form-control" rows="3" placeholder="Why are you rejecting this?" required></textarea>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Reject</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="alert alert-info">
+        No pending timesheets to approve.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<a href="/admin" class="btn btn-secondary w-100 mt-3">
+  Back to Admin
+</a>
+{% endblock %}

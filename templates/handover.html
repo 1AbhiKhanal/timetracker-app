@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="mb-0"><i class="fas fa-comments"></i> Shift Handover Notes</h3>
+  </div>
+  <div class="card-body">
+    <form method="post" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Shift Date</label>
+        <input type="date" name="shift_date" class="form-control" value="{{ today.isoformat() }}">
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Message</label>
+        <input type="text" name="message" class="form-control" placeholder="Handover note for next shift" required>
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary w-100" type="submit"><i class="fas fa-paper-plane"></i> Post Note</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="fas fa-list"></i> Recent Notes</div>
+  <div class="card-body">
+    {% if messages %}
+      <ul class="list-group">
+        {% for m in messages %}
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between">
+              <strong>{{ users.get(m.user_id).name if users.get(m.user_id) else m.user_id }}</strong>
+              <span class="text-muted small">{{ m.shift_date }} • {{ m.created_at.strftime('%H:%M') }}</span>
+            </div>
+            <div>{{ m.message }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="text-muted">No notes yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
